@@ -1,0 +1,7 @@
+{
+  "name": "hoareprompt-paper-site",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/website.test.mjs"
+  }
+}
