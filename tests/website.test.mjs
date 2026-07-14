@@ -94,10 +94,15 @@ test('references supplied local assets that exist', async () => {
 });
 
 test('uses the published HoarePrompt mark for the tab and wordmarks', async () => {
-  const html = await read('index.html');
+  const [html, css] = await Promise.all([read('index.html'), read('styles.css')]);
 
   assert.match(html, /href="assets\/hoareprompt-logo\.png"/);
-  assert.equal((html.match(/src="assets\/hoareprompt-logo\.png"/g) ?? []).length, 2);
+  assert.equal((html.match(/src="assets\/hoareprompt-logo\.png"/g) ?? []).length, 3);
+  assert.match(
+    html,
+    /<aside class="hero-note"[^>]*>\s*<img class="hero-note-mark"[^>]*>\s*<p class="note-kicker">The HoarePrompt idea<\/p>/s,
+  );
+  assert.match(css, /\.hero-note-mark\s*\{[^}]*width:\s*118px;[^}]*height:\s*163px;/s);
 });
 
 test('deploys the repository root with GitHub Pages Actions', async () => {

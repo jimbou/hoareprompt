@@ -98,6 +98,7 @@ h1 em { color: var(--blue); font-style: normal; }
 .soon { padding: 2px 5px; color: var(--amber); border-radius: 4px; background: var(--amber-wash); font-family: var(--mono); font-size: 0.67rem; font-weight: 500; }
 
 .hero-note { padding: 26px 0 0 25px; border-left: 1px solid var(--line); }
+.hero-note-mark { display: block; width: 118px; height: 163px; margin: 0 0 22px; object-fit: contain; object-position: left center; opacity: 0.9; }
 .hero-note > p:not(.note-kicker) { margin: 0 0 23px; color: var(--ink-soft); font-size: 1.02rem; line-height: 1.5; }
 .hero-note strong { color: var(--ink); font-weight: 700; }
 .hero-note dl { display: grid; gap: 11px; margin: 0; }
