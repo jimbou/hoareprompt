@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="HoarePrompt: Structural Reasoning About Program Correctness in Natural Language. ACM Distinguished Paper Award at ICSE 2026.">
   <title>HoarePrompt — Structural Reasoning in Natural Language</title>
-  <link rel="icon" type="image/png" href="hoareprompt_logo.png">
+  <link rel="icon" type="image/png" href="assets/hoareprompt-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&amp;family=Source+Sans+3:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
@@ -17,14 +17,14 @@
 
   <header class="topbar">
     <div class="shell nav-shell">
-      <a class="wordmark" href="#top" aria-label="HoarePrompt home"><img class="wordmark-mark" src="hoareprompt_logo.png" alt="">HoarePrompt<span>.</span></a>
+      <a class="wordmark" href="#top" aria-label="HoarePrompt home"><img class="wordmark-mark" src="assets/hoareprompt-logo.png" alt="">HoarePrompt<span>.</span></a>
       <nav aria-label="Primary navigation">
         <a href="#approach">Approach</a>
         <a href="#evidence">Evidence</a>
         <a href="#cite">Cite</a>
         <a href="#people">People</a>
       </nav>
-      <a class="nav-paper" href="HoarePrompt.pdf">Paper <span aria-hidden="true">↗</span></a>
+      <a class="nav-paper" href="https://arxiv.org/abs/2503.19599" target="_blank" rel="noopener">Paper <span aria-hidden="true">↗</span></a>
     </div>
     <div class="progress-track" aria-hidden="true"><span id="scroll-progress"></span></div>
   </header>
@@ -34,12 +34,11 @@
       <div class="shell hero-grid">
         <div class="hero-copy">
           <p class="eyebrow">ACM Distinguished Paper Award · ICSE 2026</p>
-          <h1>Structural reasoning about program correctness <em>in natural language.</em></h1>
+          <h1>HoarePrompt: structural reasoning about program correctness <em>in natural language.</em></h1>
           <p class="lede">HoarePrompt gives LLMs a disciplined way to reason about code: describe reachable program states step by step, then judge whether those states satisfy natural-language requirements.</p>
           <p class="authors-line">Dimitrios Stamatios Bouras <span>·</span> Yihan Dai <span>·</span> Tairan Wang <span>·</span> Yingfei Xiong <span>·</span> Sergey Mechtaev</p>
           <div class="hero-actions">
-            <a class="button button-primary" href="HoarePrompt.pdf">Read the paper <span aria-hidden="true">↗</span></a>
-            <a class="button button-secondary" href="Hoareprompt ICSE (1).pdf">View ICSE slides <span aria-hidden="true">↗</span></a>
+            <a class="button button-primary" href="https://arxiv.org/abs/2503.19599" target="_blank" rel="noopener">Read on arXiv <span aria-hidden="true">↗</span></a>
             <a class="button button-secondary" href="https://github.com/msv-lab/HoarePrompt" target="_blank" rel="noopener">Artifacts <span aria-hidden="true">↗</span></a>
           </div>
         </div>
@@ -176,44 +175,50 @@ x = x.split()[0]</code></pre>
           <figure class="example-figure reveal" aria-labelledby="induction-title">
             <div class="example-head">
               <p class="section-label">03 · Loop reasoning</p>
-              <p id="induction-title">A few concrete state-propagation steps become examples from which the model generalizes what is true after a loop.</p>
+              <p id="induction-title">The running-sum example from the ICSE presentation shows exactly how unrolled states become examples for generalizing beyond a loop.</p>
             </div>
-            <div class="heap-case-flow" role="img" aria-label="A loop pre-state is propagated through three unrolled iterations, generalized into an after-loop postcondition, and used to annotate the program for a final correctness judgment.">
+            <div class="heap-case-flow" role="img" aria-label="Starting with cur_num and sum_n at zero, HoarePrompt unrolls a running-sum loop. After the first iteration cur_num is one and sum_n is one; after the second cur_num is two and sum_n is three. These state transitions become few-shot examples for generalizing the state after the loop.">
               <article class="example-panel source-panel">
-                <p class="panel-kicker">Before the loop</p>
-                <h3>Seed the state</h3>
-                <pre><code>best = numbers[0]
-i = 1</code></pre>
-                <p>The incoming natural postcondition describes values at loop entry.</p>
+                <p class="panel-kicker">Precondition + loop</p>
+                <h3>Start from a known state</h3>
+                <pre><code>{n is an input integer,
+ cur_num is 0, sum_n is 0}
+
+while cur_num &lt; n:
+  cur_num = cur_num + 1
+  sum_n = sum_n + cur_num</code></pre>
+                <p>The loop may run an unbounded number of times, so ordinary step-by-step propagation needs a stopping rule.</p>
               </article>
-              <div class="example-arrow" aria-hidden="true"><span>unroll k=3</span>→</div>
-              <article class="topology-panel">
-                <p class="panel-kicker">Few-shot state progression</p>
-                <div class="shape-set">
-                  <div class="shape-card"><span>step 1</span><i class="shape-line short"></i></div>
-                  <div class="shape-card chosen"><span>step 2</span><i class="shape-line"></i><b>pattern</b></div>
-                  <div class="shape-card"><span>step 3</span><i class="shape-line"></i></div>
-                </div>
-                <p>Each unrolled iteration supplies another precondition, body, and postcondition example.</p>
+              <div class="example-arrow" aria-hidden="true"><span>first unroll</span>→</div>
+              <article class="example-panel constraint-panel">
+                <p class="panel-kicker">Postcondition 1</p>
+                <h3>Propagate through the body</h3>
+                <pre><code>Guard: cur_num &lt; n
+
+{n is greater than 0,
+ cur_num is 1, sum_n is 1}</code></pre>
+                <p>The loop guard strengthens the precondition; one execution of the body produces the first reachable-state description.</p>
               </article>
-              <div class="example-arrow" aria-hidden="true"><span>generalize</span>→</div>
+              <div class="example-arrow" aria-hidden="true"><span>second unroll</span>→</div>
               <article class="example-panel ghost-panel">
-                <p class="panel-kicker">After the loop</p>
-                <h3>Inductive summary</h3>
-                <pre><code>{best is the maximum
-of all processed values}</code></pre>
-                <p>The LLM infers a postcondition that summarizes an arbitrary number of iterations.</p>
+                <p class="panel-kicker">Postcondition 2</p>
+                <h3>Expose the progression</h3>
+                <pre><code>Guard: cur_num &lt; n
+
+{n is greater than 1,
+ cur_num is 2, sum_n is 3}</code></pre>
+                <p>Repeating the same local NSP computation exposes how both the counter and running sum evolve.</p>
               </article>
               <article class="heap-validation">
-                <p><strong>Final assessment.</strong> HoarePrompt inserts the inferred summaries at key code points, adds a functionality/output summary, and asks a chain-of-thought classifier whether the annotated program satisfies the natural-language problem description.</p>
+                <p><strong>Generalize after k = 3.</strong> HoarePrompt performs one more unroll, then gives the sequence of preconditions and postconditions to the LLM as few-shot examples. Rather than extending the loop forever, the model infers a natural postcondition describing the state when the loop finishes.</p>
               </article>
             </div>
             <div class="example-explanation">
-              <article><p class="explanation-label">Why loops are hard</p><p>Compositional propagation cannot enumerate an unbounded number of iterations, and a single direct loop summary loses the observed progression.</p></article>
-              <article><p class="explanation-label">What induction adds</p><p>Three unrolled state transitions act as few-shot examples, encouraging a general postcondition rather than another one-step description.</p></article>
-              <article><p class="explanation-label">The trade-off</p><p>Induction raises classification quality but uses more tokens; the no-unroll variant retains much of the gain at substantially lower cost.</p></article>
+              <article><p class="explanation-label">Why the guard matters</p><p>Before each body execution, <code>cur_num &lt; n</code> refines the state: first <code>n &gt; 0</code>, then <code>n &gt; 1</code>. Those facts belong in the next natural precondition.</p></article>
+              <article><p class="explanation-label">What the examples show</p><p>The sequence <code>(0, 0) → (1, 1) → (2, 3)</code> makes the counter and accumulated sum progression explicit to the model.</p></article>
+              <article><p class="explanation-label">Where induction enters</p><p>The unrolled triples are not the final answer. They are demonstrations that guide the LLM to generalize a postcondition for arbitrary loop completion.</p></article>
             </div>
-            <figcaption>Few-shot-driven k-induction supplies a practical loop summary for the natural-language analysis; the final judgment remains an LLM correctness classification.</figcaption>
+            <figcaption>Few-shot-driven k-induction bounds the explicit propagation work while retaining enough state progression to infer a useful natural-language summary of the loop.</figcaption>
           </figure>
         </div>
       </div>
@@ -226,7 +231,7 @@ of all processed values}</code></pre>
             <p class="section-label">Evidence</p>
             <h2>Evaluated on recent, subtle correctness errors.</h2>
           </div>
-          <p>CoCoClaNeL avoids common benchmark leakage by using 2024 Codeforces problems and rigorously judged submissions, including incorrect solutions immediately preceding accepted ones.</p>
+          <p>CoCOCLaNeL avoids common benchmark leakage by using 2024 Codeforces problems and rigorously judged submissions, including incorrect solutions immediately preceding accepted ones.</p>
         </div>
         <div class="benchmark-grid reveal">
           <article><span>645</span><h3>Submissions</h3><p>323 correct and 322 incorrect programs form a nearly balanced correctness-classification dataset.</p></article>
@@ -245,20 +250,20 @@ of all processed values}</code></pre>
         <div>
           <p class="section-label">Citation</p>
           <h2>If HoarePrompt helps your work, please cite it.</h2>
-          <p>This is the archival ICSE 2026 publication record for the ACM Distinguished Paper Award recipient.</p>
-          <a class="text-link" href="https://doi.org/10.1145/3744916.3773206" target="_blank" rel="noopener">Open the DOI record <span aria-hidden="true">↗</span></a>
+          <p>This entry records the public arXiv version and its ACM Distinguished Paper Award at ICSE 2026.</p>
+          <a class="text-link" href="https://arxiv.org/abs/2503.19599" target="_blank" rel="noopener">Open the arXiv record <span aria-hidden="true">↗</span></a>
         </div>
         <div class="citation-wrap">
           <button id="copy-cite" class="copy-button" type="button">Copy BibTeX</button>
-          <pre id="bibtex"><code>@inproceedings{bouras2026hoareprompt,
+          <pre id="bibtex"><code>@article{bouras2025hoareprompt,
   author    = {Dimitrios Stamatios Bouras and Yihan Dai and
                Tairan Wang and Yingfei Xiong and Sergey Mechtaev},
   title     = {HoarePrompt: Structural Reasoning About Program
                Correctness in Natural Language},
-  booktitle = {Proceedings of the 48th IEEE/ACM International
-               Conference on Software Engineering},
-  year      = {2026},
-  doi       = {10.1145/3744916.3773206}
+  journal   = {arXiv preprint arXiv:2503.19599},
+  year      = {2025},
+  note      = {ACM Distinguished Paper Award at ICSE 2026},
+  url       = {https://arxiv.org/abs/2503.19599}
 }</code></pre>
         </div>
       </div>
@@ -289,7 +294,10 @@ of all processed values}</code></pre>
             <p class="person-role">Author · Peking University</p>
             <h3>Yihan Dai</h3>
             <p>Key Laboratory of High Confidence Software Technologies, Ministry of Education, School of Computer Science.</p>
-            <div class="person-links"><a href="mailto:2501112020@stu.pku.edu.cn">Email</a></div>
+            <div class="person-links">
+              <a href="mailto:2501112020@stu.pku.edu.cn">Email</a>
+              <a href="https://scholar.google.com/citations?user=Ra2pxQUAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar <span aria-hidden="true">↗</span></a>
+            </div>
           </article>
           <article class="person reveal">
             <p class="person-role">Author · University College London</p>
@@ -324,9 +332,9 @@ of all processed values}</code></pre>
 
   <footer>
     <div class="shell footer-shell">
-      <a class="wordmark" href="#top"><img class="wordmark-mark" src="hoareprompt_logo.png" alt="">HoarePrompt<span>.</span></a>
+      <a class="wordmark" href="#top"><img class="wordmark-mark" src="assets/hoareprompt-logo.png" alt="">HoarePrompt<span>.</span></a>
       <p>Structural reasoning about program correctness in natural language.</p>
-      <a href="https://doi.org/10.1145/3744916.3773206" target="_blank" rel="noopener">doi:10.1145/3744916.3773206 ↗</a>
+      <a href="https://arxiv.org/abs/2503.19599" target="_blank" rel="noopener">arXiv:2503.19599 ↗</a>
     </div>
   </footer>
 </body>
