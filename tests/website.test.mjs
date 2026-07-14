@@ -74,3 +74,14 @@ test('references supplied local assets that exist', async () => {
     await access(new URL(path, rootUrl));
   }
 });
+
+test('deploys the repository root with GitHub Pages Actions', async () => {
+  const workflow = await read('.github/workflows/pages.yml');
+
+  assert.match(workflow, /pages: write/);
+  assert.match(workflow, /id-token: write/);
+  assert.match(workflow, /actions\/configure-pages@v5/);
+  assert.match(workflow, /actions\/upload-pages-artifact@v3/);
+  assert.match(workflow, /path: \./);
+  assert.match(workflow, /actions\/deploy-pages@v4/);
+});
