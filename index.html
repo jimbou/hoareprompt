@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="HoarePrompt: Structural Reasoning About Program Correctness in Natural Language. ACM Distinguished Paper Award at ICSE 2026.">
+  <title>HoarePrompt — Structural Reasoning in Natural Language</title>
+  <link rel="icon" type="image/png" href="hoareprompt_logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&amp;family=Source+Sans+3:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  <header class="topbar">
+    <div class="shell nav-shell">
+      <a class="wordmark" href="#top" aria-label="HoarePrompt home"><img class="wordmark-mark" src="hoareprompt_logo.png" alt="">HoarePrompt<span>.</span></a>
+      <nav aria-label="Primary navigation">
+        <a href="#approach">Approach</a>
+        <a href="#evidence">Evidence</a>
+        <a href="#cite">Cite</a>
+        <a href="#people">People</a>
+      </nav>
+      <a class="nav-paper" href="HoarePrompt.pdf">Paper <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="progress-track" aria-hidden="true"><span id="scroll-progress"></span></div>
+  </header>
+
+  <main id="main-content">
+    <section id="top" class="hero">
+      <div class="shell hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">ACM Distinguished Paper Award · ICSE 2026</p>
+          <h1>Structural reasoning about program correctness <em>in natural language.</em></h1>
+          <p class="lede">HoarePrompt gives LLMs a disciplined way to reason about code: describe reachable program states step by step, then judge whether those states satisfy natural-language requirements.</p>
+          <p class="authors-line">Dimitrios Stamatios Bouras <span>·</span> Yihan Dai <span>·</span> Tairan Wang <span>·</span> Yingfei Xiong <span>·</span> Sergey Mechtaev</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="HoarePrompt.pdf">Read the paper <span aria-hidden="true">↗</span></a>
+            <a class="button button-secondary" href="Hoareprompt ICSE (1).pdf">View ICSE slides <span aria-hidden="true">↗</span></a>
+            <a class="button button-secondary" href="https://github.com/msv-lab/HoarePrompt" target="_blank" rel="noopener">Artifacts <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+        <aside class="hero-note" aria-label="Research summary">
+          <p class="note-kicker">The HoarePrompt idea</p>
+          <p>Use <strong>natural language as the medium for program-state reasoning</strong>, bringing the structure of strongest-postcondition analysis to requirements that are already written for people and LLMs.</p>
+          <dl>
+            <div><dt>Structure</dt><dd>Natural Hoare triples</dd></div>
+            <div><dt>Engine</dt><dd>Compositional NSP</dd></div>
+            <div><dt>Loops</dt><dd>Few-shot k-induction</dd></div>
+          </dl>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section abstract-section">
+      <div class="shell narrow">
+        <p class="section-label">Abstract</p>
+        <p class="abstract">Verifying code against natural-language requirements is difficult, and direct LLM judgments miss even straightforward bugs. HoarePrompt adapts strongest-postcondition reasoning to natural language: an LLM describes reachable states at key program points, handles loops through few-shot-driven k-induction, annotates the program with those states, and then assesses correctness against the original requirements.</p>
+      </div>
+    </section>
+
+    <section id="approach" class="section section-tint">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <p class="section-label">Approach</p>
+            <h2>Give language models the structure of program verification.</h2>
+          </div>
+          <p>Instead of asking one prompt to understand an entire program at once, HoarePrompt decomposes the problem into local semantic steps. Each step carries forward what must be true after the code executes.</p>
+        </div>
+
+        <div class="strategy-intro">
+          <p class="section-label">Three parts of the method</p>
+          <p>Natural Hoare triples define the reasoning unit, natural strongest postconditions propagate state descriptions, and induction makes the same process practical for loops.</p>
+        </div>
+        <div class="strategy-grid">
+          <article class="strategy-card reveal">
+            <span class="strategy-number">01</span>
+            <h3>Natural Hoare triples</h3>
+            <p class="strategy-summary">Express what is true before and after a code fragment in ordinary language, so semantic reasoning can be compared directly with informal requirements.</p>
+            <dl class="strategy-detail"><div><dt>It receives</dt><dd>A natural precondition and code fragment</dd></div><div><dt>It predicts</dt><dd>A natural-language postcondition</dd></div><div><dt>It connects</dt><dd>Program semantics to human requirements</dd></div></dl>
+          </article>
+          <article class="strategy-card reveal">
+            <span class="strategy-number">02</span>
+            <h3>Compositional NSP</h3>
+            <p class="strategy-summary">Compute natural strongest postconditions one statement at a time, making the output of one local reasoning step the input to the next.</p>
+            <dl class="strategy-detail"><div><dt>It propagates</dt><dd>Reachable-state descriptions through code</dd></div><div><dt>It annotates</dt><dd>Branches, loops, returns, and outputs</dd></div><div><dt>It reduces</dt><dd>One hard judgment into smaller prompts</dd></div></dl>
+          </article>
+          <article class="strategy-card reveal">
+            <span class="strategy-number">03</span>
+            <h3>Few-shot k-induction</h3>
+            <p class="strategy-summary">Unroll loops for a small number of steps, then use the observed state progression as examples from which the LLM generalizes a postcondition.</p>
+            <dl class="strategy-detail"><div><dt>It unrolls</dt><dd>Three iterations in the evaluated setting</dd></div><div><dt>It generalizes</dt><dd>A state description after the loop</dd></div><div><dt>It improves</dt><dd>MCC by 26% over the no-unroll variant</dd></div></dl>
+          </article>
+        </div>
+
+        <div class="worked-examples-heading">
+          <p class="section-label">Three worked examples</p>
+          <p>Each block shows how HoarePrompt turns a large correctness question into a chain of explicit, inspectable state transitions.</p>
+        </div>
+        <div class="example-stack">
+          <figure class="example-figure reveal" aria-labelledby="triple-title">
+            <div class="example-head">
+              <p class="section-label">01 · Natural Hoare triple</p>
+              <p id="triple-title">A familiar string operation becomes a semantic statement that is easy to express and check in natural language.</p>
+            </div>
+            <div class="example-flow" role="img" aria-label="Starting from the natural precondition that x is a full name, selecting the first split component yields the natural postcondition that x is the first name.">
+              <article class="example-panel source-panel">
+                <p class="panel-kicker">Precondition + code</p>
+                <h3>What goes into the model</h3>
+                <pre><code>{x is a full name}
+x = x.split()[0]</code></pre>
+                <p>The precondition states what is known before the statement executes.</p>
+              </article>
+              <div class="example-arrow" aria-hidden="true"><span>predict NSP</span>→</div>
+              <article class="example-panel ghost-panel">
+                <p class="panel-kicker">Natural postcondition</p>
+                <h3>What must now be true</h3>
+                <pre><code>{x is the first name}</code></pre>
+                <p>The result stays in the same language as the requirement, without translating it into a formal logic.</p>
+              </article>
+            </div>
+            <div class="example-explanation">
+              <article><p class="explanation-label">The structure</p><p>The triple makes the pre-state, code, and post-state explicit rather than burying all three inside one correctness prompt.</p></article>
+              <article><p class="explanation-label">The model task</p><p>The LLM completes one natural Hoare triple by predicting a postcondition conditioned on the precondition and statement.</p></article>
+              <article><p class="explanation-label">The bridge</p><p>Because both requirements and state descriptions are natural language, they can be compared directly in the final assessment.</p></article>
+            </div>
+            <figcaption>A natural strongest postcondition is an LLM-generated description of reachable states—not a formal proof and not a concrete program execution.</figcaption>
+          </figure>
+
+          <figure class="example-figure reveal" aria-labelledby="composition-title">
+            <div class="example-head">
+              <p class="section-label">02 · Compositional propagation</p>
+              <p id="composition-title">The postcondition of one statement becomes the precondition of the next, building a state trace across the program.</p>
+            </div>
+            <div class="inversion-flow" role="img" aria-label="Standard input is parsed into an integer list, then the maximum value is computed, with a natural postcondition propagated after each statement.">
+              <article class="example-panel constraint-panel">
+                <p class="panel-kicker">Initial state</p>
+                <h3>Input is unread</h3>
+                <pre><code>{stdin contains space-separated integers}</code></pre>
+                <p>The first prompt starts with the program's known input condition.</p>
+              </article>
+              <div class="example-arrow" aria-hidden="true"><span>parse</span>→</div>
+              <article class="example-panel hard-panel">
+                <p class="panel-kicker">Statement 1</p>
+                <h3>Build the list</h3>
+                <pre><code>numbers = list(map(
+  int, input().split()
+))</code></pre>
+                <p>The model describes the state immediately after parsing.</p>
+              </article>
+              <div class="example-arrow" aria-hidden="true"><span>propagate</span>→</div>
+              <article class="example-panel constraint-panel">
+                <p class="panel-kicker">Statement 2</p>
+                <h3>Compute the maximum</h3>
+                <pre><code>answer = max(numbers)</code></pre>
+                <p>The prior postcondition is carried into the next local query.</p>
+              </article>
+              <article class="inverse-ghost">
+                <p class="panel-kicker">Composed natural postcondition</p>
+                <div><strong>State summary</strong><code>answer is the largest input integer</code></div>
+                <p>Local postconditions accumulate into an explanation of the program's behavior at the points that matter for correctness.</p>
+              </article>
+            </div>
+            <div class="example-explanation">
+              <article><p class="explanation-label">Why compose</p><p>Reasoning statement by statement limits the semantic change that each LLM query must understand.</p></article>
+              <article><p class="explanation-label">What propagates</p><p>Each natural postcondition becomes context for the following statement, preserving the chain of reachable states.</p></article>
+              <article><p class="explanation-label">What gets annotated</p><p>HoarePrompt keeps major transitions—after branches, loops, returns, prints, and exception handlers—for the final classifier.</p></article>
+            </div>
+            <figcaption>Composition turns program analysis into a sequence of small natural Hoare-triple completions while retaining the semantic path from input to output.</figcaption>
+          </figure>
+
+          <figure class="example-figure reveal" aria-labelledby="induction-title">
+            <div class="example-head">
+              <p class="section-label">03 · Loop reasoning</p>
+              <p id="induction-title">A few concrete state-propagation steps become examples from which the model generalizes what is true after a loop.</p>
+            </div>
+            <div class="heap-case-flow" role="img" aria-label="A loop pre-state is propagated through three unrolled iterations, generalized into an after-loop postcondition, and used to annotate the program for a final correctness judgment.">
+              <article class="example-panel source-panel">
+                <p class="panel-kicker">Before the loop</p>
+                <h3>Seed the state</h3>
+                <pre><code>best = numbers[0]
+i = 1</code></pre>
+                <p>The incoming natural postcondition describes values at loop entry.</p>
+              </article>
+              <div class="example-arrow" aria-hidden="true"><span>unroll k=3</span>→</div>
+              <article class="topology-panel">
+                <p class="panel-kicker">Few-shot state progression</p>
+                <div class="shape-set">
+                  <div class="shape-card"><span>step 1</span><i class="shape-line short"></i></div>
+                  <div class="shape-card chosen"><span>step 2</span><i class="shape-line"></i><b>pattern</b></div>
+                  <div class="shape-card"><span>step 3</span><i class="shape-line"></i></div>
+                </div>
+                <p>Each unrolled iteration supplies another precondition, body, and postcondition example.</p>
+              </article>
+              <div class="example-arrow" aria-hidden="true"><span>generalize</span>→</div>
+              <article class="example-panel ghost-panel">
+                <p class="panel-kicker">After the loop</p>
+                <h3>Inductive summary</h3>
+                <pre><code>{best is the maximum
+of all processed values}</code></pre>
+                <p>The LLM infers a postcondition that summarizes an arbitrary number of iterations.</p>
+              </article>
+              <article class="heap-validation">
+                <p><strong>Final assessment.</strong> HoarePrompt inserts the inferred summaries at key code points, adds a functionality/output summary, and asks a chain-of-thought classifier whether the annotated program satisfies the natural-language problem description.</p>
+              </article>
+            </div>
+            <div class="example-explanation">
+              <article><p class="explanation-label">Why loops are hard</p><p>Compositional propagation cannot enumerate an unbounded number of iterations, and a single direct loop summary loses the observed progression.</p></article>
+              <article><p class="explanation-label">What induction adds</p><p>Three unrolled state transitions act as few-shot examples, encouraging a general postcondition rather than another one-step description.</p></article>
+              <article><p class="explanation-label">The trade-off</p><p>Induction raises classification quality but uses more tokens; the no-unroll variant retains much of the gain at substantially lower cost.</p></article>
+            </div>
+            <figcaption>Few-shot-driven k-induction supplies a practical loop summary for the natural-language analysis; the final judgment remains an LLM correctness classification.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="evidence" class="section">
+      <div class="shell">
+        <div class="section-heading results-heading">
+          <div>
+            <p class="section-label">Evidence</p>
+            <h2>Evaluated on recent, subtle correctness errors.</h2>
+          </div>
+          <p>CoCoClaNeL avoids common benchmark leakage by using 2024 Codeforces problems and rigorously judged submissions, including incorrect solutions immediately preceding accepted ones.</p>
+        </div>
+        <div class="benchmark-grid reveal">
+          <article><span>645</span><h3>Submissions</h3><p>323 correct and 322 incorrect programs form a nearly balanced correctness-classification dataset.</p></article>
+          <article><span>163</span><h3>Problems</h3><p>Challenging natural-language programming tasks with unambiguous descriptions and hidden judging tests.</p></article>
+          <article><span>46</span><h3>Codeforces contests</h3><p>Contests from 2024, selected after the training cutoffs of many evaluated open-weight models.</p></article>
+        </div>
+        <div class="result-callout reveal">
+          <p class="result-label">Across four language models</p>
+          <p>HoarePrompt improves MCC by <strong>61%</strong> over Zero-shot-CoT, <strong>72%</strong> over Vanilla prompting, and <strong>106%</strong> over an LLM-based Tester classifier. Few-shot-driven loop reasoning adds a further <strong>26%</strong> over the no-unroll variant.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="cite" class="section cite-section section-tint">
+      <div class="shell cite-layout">
+        <div>
+          <p class="section-label">Citation</p>
+          <h2>If HoarePrompt helps your work, please cite it.</h2>
+          <p>This is the archival ICSE 2026 publication record for the ACM Distinguished Paper Award recipient.</p>
+          <a class="text-link" href="https://doi.org/10.1145/3744916.3773206" target="_blank" rel="noopener">Open the DOI record <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="citation-wrap">
+          <button id="copy-cite" class="copy-button" type="button">Copy BibTeX</button>
+          <pre id="bibtex"><code>@inproceedings{bouras2026hoareprompt,
+  author    = {Dimitrios Stamatios Bouras and Yihan Dai and
+               Tairan Wang and Yingfei Xiong and Sergey Mechtaev},
+  title     = {HoarePrompt: Structural Reasoning About Program
+               Correctness in Natural Language},
+  booktitle = {Proceedings of the 48th IEEE/ACM International
+               Conference on Software Engineering},
+  year      = {2026},
+  doi       = {10.1145/3744916.3773206}
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="people" class="section people-section">
+      <div class="shell">
+        <div class="section-heading people-heading">
+          <div>
+            <p class="section-label">People</p>
+            <h2>From Peking University and University College London.</h2>
+          </div>
+          <p>Key Laboratory of High Confidence Software Technologies, Ministry of Education, School of Computer Science, Peking University; and University College London.</p>
+        </div>
+        <div class="people-grid">
+          <article class="person reveal">
+            <p class="person-role">First author · Peking University</p>
+            <h3>Dimitrios Stamatios Bouras</h3>
+            <p>Key Laboratory of High Confidence Software Technologies, Ministry of Education, School of Computer Science.</p>
+            <div class="person-links">
+              <a href="mailto:2501112125@stu.pku.edu.cn">Email</a>
+              <a href="https://bouras.online" target="_blank" rel="noopener">Website <span aria-hidden="true">↗</span></a>
+              <a href="https://scholar.google.com/citations?user=SAT5NjIAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar <span aria-hidden="true">↗</span></a>
+              <a href="https://github.com/jimbou" target="_blank" rel="noopener">GitHub <span aria-hidden="true">↗</span></a>
+            </div>
+          </article>
+          <article class="person reveal">
+            <p class="person-role">Author · Peking University</p>
+            <h3>Yihan Dai</h3>
+            <p>Key Laboratory of High Confidence Software Technologies, Ministry of Education, School of Computer Science.</p>
+            <div class="person-links"><a href="mailto:2501112020@stu.pku.edu.cn">Email</a></div>
+          </article>
+          <article class="person reveal">
+            <p class="person-role">Author · University College London</p>
+            <h3>Tairan Wang</h3>
+            <p>Department of Computer Science, University College London, London, United Kingdom.</p>
+            <div class="person-links"><a href="mailto:tairan.wang.22@ucl.ac.uk">Email</a></div>
+          </article>
+          <article class="person reveal">
+            <p class="person-role">Author · Peking University</p>
+            <h3>Yingfei Xiong</h3>
+            <p>Key Laboratory of High Confidence Software Technologies, Ministry of Education, School of Computer Science.</p>
+            <div class="person-links">
+              <a href="mailto:xiongyf@pku.edu.cn">Email</a>
+              <a href="https://xiongyingfei.github.io/" target="_blank" rel="noopener">Website <span aria-hidden="true">↗</span></a>
+              <a href="https://scholar.google.com/citations?user=kiG3fBsAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar <span aria-hidden="true">↗</span></a>
+            </div>
+          </article>
+          <article class="person reveal">
+            <p class="person-role">Corresponding author · Peking University</p>
+            <h3>Sergey Mechtaev</h3>
+            <p>Key Laboratory of High Confidence Software Technologies, Ministry of Education, School of Computer Science.</p>
+            <div class="person-links">
+              <a href="mailto:mechtaev@pku.edu.cn">Email</a>
+              <a href="https://mechtaev.com/" target="_blank" rel="noopener">Website <span aria-hidden="true">↗</span></a>
+              <a href="https://scholar.google.com/citations?user=XTFR93cAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar <span aria-hidden="true">↗</span></a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-shell">
+      <a class="wordmark" href="#top"><img class="wordmark-mark" src="hoareprompt_logo.png" alt="">HoarePrompt<span>.</span></a>
+      <p>Structural reasoning about program correctness in natural language.</p>
+      <a href="https://doi.org/10.1145/3744916.3773206" target="_blank" rel="noopener">doi:10.1145/3744916.3773206 ↗</a>
+    </div>
+  </footer>
+</body>
+</html>
